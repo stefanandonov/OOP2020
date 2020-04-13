@@ -23,7 +23,7 @@ private:
 	}
 
 public:
-	Shape (char * id = "NOID",  char * description = "nodescription", Color color = RED, double area = 0.0) {
+	Shape (const char * id = "NOID",  char * description = "nodescription", Color color = RED, double area = 0.0) {
 		strcpy(this->id, id);
 		this->description = new char [strlen(description)+1];
 		strcpy(this->description, description);
@@ -91,6 +91,26 @@ public:
 		return *this;
 	}
 
+	bool operator == (char * id) {
+		return strcmp(this->id,id)==0;
+	}
+
+	bool operator == (Color c){
+		return this->color == c;
+	}
+
+	bool operator > (const Shape & s) const {
+		return this->area > s.area;
+	}
+
+	Shape operator + (const Shape & s) {
+		if (s>(*this)) {
+			return Shape(s.id, s.description, s.color, this->area + s.area);
+		}
+		else
+			return Shape(this->id, this->description, this->color, this->area + s.area);
+	}
+
 	friend class Canvas;
 
 };
@@ -125,32 +145,33 @@ public:
 		return *this;
 	}
 
-	void addShape (Shape s) {
+	Canvas & operator += (Shape s) {
 		Shape * tmp = new Shape [n+1];
 		for (int i=0;i<n;i++)
 			tmp[i]=shapes[i];
 		tmp[n++]=s;
 		delete [] shapes;
-		shapes = tmp;		
+		shapes = tmp;	
+		return *this;	
 	}
 
 	bool containsId (char * id) {
 		for (int i=0;i<n;i++)
-			if (strcmp(shapes[i].id, id)==0)
+			if (shapes[i]==id)
 				return true;
 
 		return false;
 	}
 
-	void removeShapeById (char * id) {
+	Canvas & operator -= (char * id) {
         //cout<<containsId(id)<<endl;
 		if (!containsId(id))
-			return ;
+			return *this;
 
 		Shape * tmp = new Shape[n-1];
 		for (int i=0, j=0;i<n;i++) {
             //cout<<shapes[i].id<<" "<<id<<" "<<strcmp(shapes[i].id, id)<<endl;
-            if (strcmp(shapes[i].id, id)!=0) {
+            if (!(shapes[i]==id)) {
                 //cout<<j<<","<<i<<endl;
                 tmp[j++]=shapes[i];                
             }
@@ -159,13 +180,14 @@ public:
         --n;
 		delete [] shapes;
 		shapes = tmp;
+		return *this;
 	}
 
 	int hasShapeWithColor (Color color) {
 		int count = 0;
         for (int i=0;i<n;i++) {
-            //cout<<shapes[i].color<<" "<< color<<endl;
-			if (shapes[i].color == color)
+            //cout<<shapes[i].color<<" "<< color<<" "<<(shapes[i]==color)<<endl;
+			if (shapes[i]==color)
 				++count;
         }
         
@@ -173,33 +195,33 @@ public:
 		return count;
 	}
 
-	void removeShapesByColor (Color color) {
+	Canvas & operator -= (Color color) {
 		int count = hasShapeWithColor(color);
-        
+       
         if (count == 0) 
-            return ;
+            return *this;
 
 		Shape * tmp = new Shape[n-count];
         for (int i=0,j=0;i<n;i++) {
             
-			if (shapes[i].color != color)
+			if (!(shapes[i] == color))
 				tmp[j++]=shapes[i];
         }
 		delete [] shapes;
 		shapes = tmp;
         n-=count;
+        return *this;
 	}
 
-	void drawAll() {
-		for (int i=0;i<n;i++)
-			shapes[i].draw();
+	
+
+	friend ostream & operator << (ostream & out, const Canvas & c){
+		for (int i=0;i<c.n;i++)
+			out<<c.shapes[i];
+		return out;
 	}
 
-	void drawOnly(Color c) {
-		for (int i=0;i<n;i++)
-			if (shapes[i].getColor()==c)
-				shapes[i].draw();
-	}
+	
 
 	double totalArea() {
 		double sum = 0.0;
@@ -211,7 +233,7 @@ public:
 	Canvas getHalfCanvas() {
 		Canvas copy = Canvas(*this);
 		for (int i=0;i<copy.n;i++) {
-			copy.shapes[i].reduce();
+			copy.shapes[i]*=0.5;
 		}
 
 		return copy;
@@ -219,8 +241,19 @@ public:
 
 	void expandAll (double percent) {
 		for (int i=0;i<n;i++)
-			shapes[i].expand(percent);
+			shapes[i]*=(1+percent);
 	}
+
+	Shape sum() {
+		Shape s; 
+		for (int i=0;i<n;i++)
+			s = s+shapes[i];
+        return s;
+	}
+    
+    Shape & operator [] (int idx) {
+        return shapes[idx];
+    }
 
 };
 
@@ -228,34 +261,33 @@ int main () {
 
 	int n;
 	cin>>n;
-	cout<<"ADITION OF SHAPES IN THE CANVAS"<<endl;
+	
 	Canvas canvas;
 
-	for (int i=0;i<n;i++) {
-		char id [5];
-		int color;
-		double area;
-		char description [100];
-
-		cin>>id>>description>>color>>area;
-		Shape s (id, description, (Color) color, area);
-		canvas.addShape(s);
+	cout<<"TEST FOR >> AND << IN SHAPE CLASS"<<endl;
+	Shape s;
+	cin>>s;
+	cout<<s;
+	
+	cout<<"TEST FOR += OF CLASS CANVAS"<<endl;
+	canvas+=s;
+	for (int i=1;i<n;i++) {
+		cin>>s;
+		canvas+=s;
 	}
+    
+    cout<<"TESTING + FOR CLASS SHAPE AND [] FOR CLASS CANVAS"<<endl;
+    cout<<(canvas[0]+canvas[3]);
 
 	cout<<"TESTING = FOR CLASS CANVAS"<<endl;
 	Canvas c;
 	c = canvas;
 
-	cout<<"TESTING DRAW ALL"<<endl;
+	cout<<"TESTING << FOR CLASS CANVAS"<<endl;
+	cout<<c;
 
-	c.drawAll();
-
-	cout<<"TESTING DRAW RED SHAPES"<<endl;
-
-	c.drawOnly(RED);
 
 	cout<<"TESTING TOTAL AREA"<<endl;
-
 	cout<<c.totalArea()<<endl;
 
 	cout<<"TESTING HALF CANVAS"<<endl;
@@ -270,16 +302,18 @@ int main () {
 	c.expandAll(0.10);
 	cout<<c.totalArea()<<endl;
 
-	cout<<"TESTING REMOVE BY ID"<<endl;
-	c.removeShapeById("A1");
-	c.removeShapeById("Z11");
+	cout<<"TESTING OPERATOR -= (REMOVE BY ID)"<<endl;
+	c-=("A1");
+	c-=("Z11");
     
-    c.drawAll();
+    cout<<c;
 
-	cout<<"TESTING REMOVE BY COLOR"<<endl;
-	c.removeShapesByColor(RED);
+	cout<<"TESTING OPERATOR -= (REMOVE BY COLOR)"<<endl;
+	c-=(RED);
+	cout<<c;
 
-	c.drawAll();
+	cout<<"TESTING SUM METHOD AND + OPERATOR IN CLASS SHAPE"<<endl;
+	cout<<c.sum();
 
 	return 0;
 }
