@@ -57,7 +57,7 @@ public:
 	Array & operator -= (int n) { //-=
 		int pojavuvanja = contains(n);
 		if (pojavuvanja==0)
-			return *this;
+			return *this; //throw NumberDoesNotExistException();
 		else {
 			int * tmp = new int [size - pojavuvanja];
 			int j = 0;
@@ -143,6 +143,8 @@ public:
 	}
 
 	int & operator [] (int idx) { //Array a;  a[idx] mi dozvoluva da napravam
+		/*if (idx<0 || idx>=size)
+			return IndexOutOfBoundsException(); */
 		return numbers[idx];
 	}
 
@@ -167,14 +169,24 @@ int main () {
 	//cout<<a;
 
 	Array a1 (a);
-	cout<<a1[3]<<endl;
-	a1[3]=2;
+	//try {
+		cout<<a1[3]<<endl;
+		a1[3]=2;
+	//}	
+	//catch (IndexOutOfBoundsException & e) {
+		e.showMessage();
+	//}
 	cout<<a1;
 
 	cout<<++a1;
 	cout<<a1++;
 
-	// a-=(1);
+	//try {
+		a-=(1);
+	//}	
+	//catch (NumberDoesNotExistException & e) {
+	//	e.showMessage();
+	//}
 	// cout<<a;
 
 
