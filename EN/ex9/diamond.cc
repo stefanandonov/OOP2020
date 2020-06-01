@@ -75,6 +75,6 @@ int main () {
 
 	CarJet cj;
 
-	cj.accelarate();
+	//cj.accelarate();
 	return 0;
 }

@@ -1,3 +1,38 @@
+#include<iostream>
+#include<cstring>
+
+using namespace std;
+
+enum tipC {
+    basic,
+    premium 
+};
+
+class Chlen {
+    char ime [100];
+    tipC tip;
+    static int osnovenPopust;
+    const static int dopolnitelPopust;
+    int godina;
+
+public:
+    Chlen (char * ime = "", tipC tip = basic, int godina = 1903) {
+        strcpy(this->ime, ime);
+        this->tip = tip;
+        this->godina = godina;
+    }
+
+    Chlen (const Chlen & c) {
+        strcpy(this->ime, c.ime);
+        this->tip = c.tip;
+        this->godina = c.godina;
+    }
+
+};
+
+int Chlen::osnovenPopust = 10;
+const int Chlen::dopolnitelPopust = 15;
+
 int main(){
 	int testCase;
 	cin >> testCase;

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <ctype>
 using namespace std;
 
 
@@ -38,6 +39,10 @@ public:
     friend ostream & operator << (ostream &out, const Character & c) {
         return out<<c;
     }
+
+    Character toUpperCase() {
+        return Character(toupper(character));
+    }
 };
 
 class CharSequence {
@@ -53,6 +58,11 @@ class CharSequence {
         }
     }
 public:
+
+    CharSequence () {
+        size = 0;
+        chars = new Character[size];
+    }
     CharSequence (char * input) {
         size = strlen(input);
         chars = new Character [size];
@@ -116,7 +126,10 @@ public:
     }
 
     CharSequence toUpperCase() {
-
+        CharSequence newCharSequence;
+        for (int i=0;i<size;i++)
+            newCharSequence+=chars[i].toupper();
+        return newCharSequence;
     }
 };
 

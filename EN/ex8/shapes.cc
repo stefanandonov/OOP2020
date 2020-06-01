@@ -153,11 +153,10 @@ int main () {
 	double height, radius, a, b;
 	for (int i=0;i<n;i++) {
 		cin>>type;
-		cout<<type;
 		switch (type) {
-			case 0: //cylinder			
-			shapes[i] = new Cylinder();
-			cin>>*shapes[i];
+			case 0: //cylinder
+			cin>>height>>radius;
+			shapes[i] = new Cylinder(height, radius);
 			break;
 			case 1: //cone
 			cin>>height>>radius;
